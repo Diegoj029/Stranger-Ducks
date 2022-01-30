@@ -368,15 +368,16 @@ class Game(object):
 class Menu():
     def __init__(self, screen):
         self.screen = screen
-        # self.back_btn = Button(back,back_glow,(0,0),(50,50),"Back")
+        # self.start_btn = Button(start_btn,start_btn,(0,0),(205,190),"Start")
         # self.input_box1 = InputBox(100, 100, 140, 32)
         # self.input_boxes = []
 
         # self.input_boxes.append(self.input_box1)
         pg.display.set_caption('Stranger Ducks')
 
-        #Launch app
-        self.game_runtime()
+        # #Launch app
+        # self.game_runtime()
+        self.main_menu()
 
 
     def process_events(self,button_list):
@@ -401,9 +402,9 @@ class Menu():
                     if button.isOver(pos):
                         button.hover_effects()
             
-            #Input boxes
-            for box in self.input_boxes:
-                box.handle_event(event)
+            # #Input boxes
+            # for box in self.input_boxes:
+            #     box.handle_event(event)
 
 
     def main_menu(self):
@@ -411,17 +412,25 @@ class Menu():
 
         button_list = []
 
-        button_list.append(Button(play, play_glow, (-15,100),(200,100),'Play'))
-        button_list.append(Button(leaderboard, leaderboard_glow, (0,200),(350,80),'Leaderboard'))
-        button_list.append(Button(howtoplay, howtoplay_glow, (0,280),(300,65),'How to Play'))
-        button_list.append(Button(options, options_glow, (0,350),(200,65),'Options'))
-        button_list.append(Button(cred, cred_glow, (440,530),(150,80),'Credits'))
+        strt = pg.image.fromstring(start_btn.tobytes(), start_btn.size, 'RGBA')
+        button_list.append(Button(strt,strt,(250,250),(205,190),"Start"))
+        # button_list.append(Button(leaderboard, leaderboard_glow, (0,200),(350,80),'Leaderboard'))
+        # button_list.append(Button(howtoplay, howtoplay_glow, (0,280),(300,65),'How to Play'))
+        # button_list.append(Button(options, options_glow, (0,350),(200,65),'Options'))
+        # button_list.append(Button(cred, cred_glow, (440,530),(150,80),'Credits'))
 
         while not done:
             done = self.process_events(button_list)
             
             #Display elements
             self.screen.fill(WHITE)
+            title = pg.image.fromstring(title_img.tobytes(), title_img.size, 'RGBA')
+            self.screen.blit(title,(0,50))
+            message_to_screen(self.screen,"ENTER SUPERPOSITION",BLACK,(208,350),18)
+            message_to_screen(self.screen,"INSTRUCTIONS: Collect enough qubits to reach scalability,",BLACK,(10,430),18)
+            message_to_screen(self.screen,"in as little time as possible. Watch out for annihilators and noise!",BLACK,(10,457),18)
+            message_to_screen(self.screen,"Different gates have different effects on your state and the game.",BLACK,(10,484),18)
+            message_to_screen(self.screen,"Don't loose all your qubits; annihilation of the ground state will end the game.",BLACK,(10,511),18)
             #self.screen.blit(main_menu_bg,(0,0))
             for button in button_list:
                 button.draw(self.screen)
@@ -435,21 +444,22 @@ class Menu():
         done = False
         game = Game()
         obstacles = ObstacleManager()
-        items = ItemManager()
+        #items = ItemManager()
 
         while not done:
             done = game.process_events()
             self.screen.fill(WHITE, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT//2))
             self.screen.fill(BLACK, (0, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT//2))
             if status == 0:
-                game.display_alive_state(self.screen, obstacles, items)
+                game.display_alive_state(self.screen, obstacles)
             elif status == 1:
-                game.display_death_state(self.screen, obstacles, items)
+                game.display_death_state(self.screen, obstacles)
             elif status == 2:
-                game.display_alive_state(self.screen, obstacles, items)
-                game.display_death_state(self.screen, obstacles, items)
+                game.display_alive_state(self.screen, obstacles)
+                game.display_death_state(self.screen, obstacles)
             pg.display.flip()
             clock.tick(FPS)
+            
 
     def howtoplay(self):
         done = False
@@ -538,7 +548,7 @@ class Menu():
 
     def menu_open(self,button):
         callback = button.callback
-        if callback == 'Play':
+        if callback == 'Start':
             self.game_runtime()
         elif callback == 'Leaderboard':
             self.leaderboard()
@@ -550,7 +560,6 @@ class Menu():
             self.credits()
         elif callback == 'Back':
             self.main_menu()
-
 
 """
 ///////////////////////////////////////////////////////////
