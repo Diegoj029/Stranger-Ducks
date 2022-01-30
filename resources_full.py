@@ -1,7 +1,7 @@
 from PIL import  Image
 
 # extracting title form the title.png image.
-title_img = Image.open("resources.png").crop((416,0,1610,260)).convert("RGBA")
+title_img = Image.open("title_transp.png").crop((416,0,1610,260)).convert("RGBA")
 title_img = title_img.resize(list(map(lambda x:x//2 , title_img.size)))
 
 # extracting game items and characters form the resource.png image.
@@ -108,10 +108,10 @@ swapgatebit_w = swapgatebit_w.resize(list(map(lambda x:x//2 , swapgatebit_w.size
 swapgatebit_b = Image.open("gates.png").crop((5491,187,5583,221)).convert("RGBA") # SWAP gate bit - black world
 swapgatebit_b = swapgatebit_b.resize(list(map(lambda x:x//2 , swapgatebit_b.size)))
 
-hgatebit_w = Image.open("gates.png").crop((5618,46,5709,71)).convert("RGBA") # H gate bit - white world
+hgatebit_w = Image.open("gates.png").crop((5618,6,5709,46)).convert("RGBA") # H gate bit - white world
 hgatebit_w = hgatebit_w.resize(list(map(lambda x:x//2 , hgatebit_w.size)))
 
-hgatebit_b = Image.open("gates.png").crop((5371,111,5709,194)).convert("RGBA") # H gate bit - black world
+hgatebit_b = Image.open("gates.png").crop((5618,72,5709,111)).convert("RGBA") # H gate bit - black world
 hgatebit_b = hgatebit_b.resize(list(map(lambda x:x//2 , hgatebit_b.size)))
 
 # extracting gate screen assets form the gates.png image.
