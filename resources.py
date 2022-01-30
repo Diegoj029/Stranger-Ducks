@@ -1,11 +1,35 @@
 from PIL import  Image
 
 # extracting game items and characters form the resource.png image.
-player_w = Image.open("resources.png").crop((4,24,92,109)).convert("RGBA")
+player_w = Image.open("resources.png").crop((4,24,92,109)).convert("RGBA") # right facing upright alive duck - OLD VAR NAME
 player_w = player_w.resize(list(map(lambda x:x//2 , player_w.size)))
 
-player_b = Image.open("resources.png").crop((108,21,196,106)).convert("RGBA")
+player_b = Image.open("resources.png").crop((96,21,187,107)).convert("RGBA") # right facing upside-down dead duck - OLD VAR NAME
 player_b = player_b.resize(list(map(lambda x:x//2 , player_b.size)))
+
+player_w_up_r = Image.open("resources.png").crop((4,24,92,109)).convert("RGBA") # right facing upright alive duck - NEW VAR NAME
+player_w_up_r = player_w_up_r.resize(list(map(lambda x:x//2 , player_w_up_r.size)))
+
+player_b_dwn_r = Image.open("resources.png").crop((96,21,187,107)).convert("RGBA") # right facing upside-down dead duck - NEW VAR NAME
+player_b_dwn_r = player_b_dwn_r.resize(list(map(lambda x:x//2 , player_b_dwn_r.size)))
+
+player_w_dwn_r = Image.open("resources.png").crop((1208,19,1298,105)).convert("RGBA") # right facing upside-down alive duck
+player_w_dwn_r = player_w_dwn_r.resize(list(map(lambda x:x//2 , player_w_dwn_r.size)))
+
+player_b_up_r = Image.open("resources.png").crop((1302,21,1393,107)).convert("RGBA") # right facing upright dead duck
+player_b_up_r = player_b_up_r.resize(list(map(lambda x:x//2 , player_b_up_r.size)))
+
+player_w_dwn_l = Image.open("resources.png").crop((1489,21,1579,107)).convert("RGBA") # left facing upside-down alive duck
+player_w_dwn_l = player_w_dwn_l.resize(list(map(lambda x:x//2 , player_w_dwn_l.size)))
+
+player_b_up_l = Image.open("resources.png").crop((1394,22,1486,110)).convert("RGBA") # left facing upright dead duck
+player_b_up_l = player_b_up_l.resize(list(map(lambda x:x//2 , player_b_up_l.size)))
+
+player_w_up_l = Image.open("resources.png").crop((1685,22,1775,108)).convert("RGBA") # left facing upright alive duck
+player_w_up_l = player_w_up_l.resize(list(map(lambda x:x//2 , player_w_up_l.size)))
+
+player_b_dwn_l = Image.open("resources.png").crop((1591,21,1680,107)).convert("RGBA") # left facing upside-down dead duck
+player_b_dwn_l = player_b_dwn_l.resize(list(map(lambda x:x//2 , player_b_dwn_l.size)))
 
 ground_w = Image.open("resources.png").crop((3,112,1395,130)).convert("RGBA")
 ground_w = ground_w.resize(list(map(lambda x:x//2 , ground_w.size)))
