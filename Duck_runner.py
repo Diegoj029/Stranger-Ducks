@@ -11,15 +11,14 @@ from Qtools import *
 
 pg.init()
 
-SCREEN_WIDTH = 700
+SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-status = 1     #0 = Alive | 1 = Death | 2 = Superposition
+speed = 4
+status = 1    #0 = Alive | 1 = Death | 2 = Superposition
 height = (SCREEN_HEIGHT // 2)
 if status == 2: 
-    speed = 4
     FPS = 90
 else: 
-    speed = 4
     FPS = 180
 
 """
@@ -108,6 +107,7 @@ class ObstacleManager():
             if self.obs4[0]<=-50:
                 self.obs4 = (self.obs2[0], self.obs_height[1])
                 self.obast4 = self.obast2_choice[1]
+            self.player_stading_cub = (5, height, 5+43, height+46)
 
         else:
             screen.blit(pg.image.fromstring(self.obast1.tobytes(), self.obast1.size, 'RGBA'), self.obs1)
@@ -121,6 +121,7 @@ class ObstacleManager():
                 if self.obs2[0]<=-50:
                     self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[0])
                     self.obast2 = choice(self.obstacles)[0]
+                self.player_stading_cub = (5, height, 5+43, height+46)
             else:
                 if self.obs1[0]<=-50:
                     self.obs1 = (rnd(600, 600+500), self.obs_height[1])
@@ -129,8 +130,7 @@ class ObstacleManager():
                 if self.obs2[0]<=-50:
                     self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[1])
                     self.obast2 = choice(self.obstacles)[1]
-
-        self.player_stading_cub = (5, height, 5+43, height+46)
+                self.player_stading_cub = (5, height, 5-43, height-46)
 
     def display_obstacle(self):
         if status == 2:
@@ -170,9 +170,9 @@ class ObstacleManager():
                 self.obs1_cub = (self.obs1[0], self.obs1[1], self.obs1[0] - self.obast1.size[0], self.obs1[1] - self.obast1.size[1])
                 self.obs2_cub = (self.obs2[0], self.obs2[1], self.obs2[0] - self.obast2.size[0], self.obs2[1] - self.obast2.size[1])
                 
-                if self.obs1_cub[0]<=self.player_stading_cub[2]+10<=self.obs1_cub[2] and self.obs1_cub[1]<=self.player_stading_cub[3]+10<=self.obs1_cub[3]+5:
+                if self.obs1_cub[0]<=self.player_stading_cub[2]+10<=self.obs1_cub[2] and self.obs1_cub[1]<=self.player_stading_cub[3]+10<=self.obs1_cub[3]+50:
                     return False
-                if self.obs2_cub[0]<=self.player_stading_cub[2]+10<=self.obs2_cub[2] and self.obs2_cub[1]<=self.player_stading_cub[3]+10<=self.obs2_cub[3]+5:
+                if self.obs2_cub[0]<=self.player_stading_cub[2]+10<=self.obs2_cub[2] and self.obs2_cub[1]<=self.player_stading_cub[3]+10<=self.obs2_cub[3]+50:
                     return False
 
             return True
@@ -187,9 +187,11 @@ class ObstacleManager():
 class Game(object):
     def __init__(self):
         self.start = False
+        self.lock = False
         self.jumping = False
 
     def process_events(self):
+        global height
         for event in pg.event.get():
             #Quit game
             if event.type == pg.QUIT:
@@ -199,12 +201,11 @@ class Game(object):
             if event.type==pg.KEYDOWN:
                 self.start = True
                 if event.key == pg.K_SPACE:
-                    self.jumping = True
+                    if height >= (SCREEN_HEIGHT // 2)-20:self.jumping = True
                 return False
 
     def display_alive_state(self, screen, obstacles):
         global height
-        lock = False
         bg = (0, SCREEN_HEIGHT//2 - 15)
         bg1 = (ground_w.size[0], SCREEN_HEIGHT//2 - 15)
         player_sprite = player_w
@@ -215,10 +216,11 @@ class Game(object):
         screen.blit(pg.image.fromstring(ground_w.tobytes(), ground_w.size, 'RGBA'), bg1)
         
         #Jump
+        print(self.jumping)
         if self.jumping:
-            if height >= (SCREEN_HEIGHT // 2)-100:
+            if height >= (SCREEN_HEIGHT // 2 -50)-100:
                 height -= 3
-            if height <= (SCREEN_HEIGHT // 2)-100:
+            if height <= (SCREEN_HEIGHT // 2) -50-100:
                 self.jumping = False
         if height < ((SCREEN_HEIGHT // 2)) and not self.jumping:
             height += 3
@@ -226,20 +228,20 @@ class Game(object):
         
         obstacles.update_items(screen)
         
-        if height > ((SCREEN_HEIGHT // 2)):
+        if height > ((SCREEN_HEIGHT // 2)-50):
             self.start=True
         if self.start:
-            if not lock:
-                self.bg = (bg[0]-speed, bg[1])
+            if not self.lock:
+                bg = (bg[0]-speed, bg[1])
                 if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH):
-                    lock = True
-            if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and lock:
+                    self.lock = True
+            if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and self.lock:
                 bg1 = (bg1[0]-speed, bg1[1])
                 bg = (bg[0]-speed, bg[1])
                 if -(bg1[0]) >= (ground_w.size[0] - SCREEN_WIDTH):
                     bg = (SCREEN_WIDTH, SCREEN_HEIGHT//2 - 15)
 
-            if -(bg1[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and lock:
+            if -(bg1[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and self.lock:
                 bg = (bg[0]-speed, bg1[1])
                 bg1 = (bg1[0]-speed, bg1[1])
                 if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH):
@@ -252,9 +254,8 @@ class Game(object):
 
     def display_death_state(self, screen, obstacles):
         global height
-        lock = False
-        bg = (0, SCREEN_HEIGHT//2 + 15)
-        bg1 = (ground_b.size[0], SCREEN_HEIGHT//2 + 15)
+        bg = (0, SCREEN_HEIGHT//2 + 5)
+        bg1 = (ground_b.size[0], SCREEN_HEIGHT//2 + 10)
         player = player_b
         
         #Floor
@@ -262,34 +263,35 @@ class Game(object):
         screen.blit(pg.image.fromstring(ground_b.tobytes(), ground_b.size, 'RGBA'), bg1)
         
         #Jump
+        print(self.jumping)
         if self.jumping:
-            if height >= (SCREEN_HEIGHT // 2)-100:
+            if height >= (SCREEN_HEIGHT // 2 -50)-100:
                 height -= 3
-            if height <= (SCREEN_HEIGHT // 2)-100:
+            if height <= (SCREEN_HEIGHT // 2) -50-100:
                 self.jumping = False
         if height < ((SCREEN_HEIGHT // 2)) and not self.jumping:
             height += 3
-        player = screen.blit(pg.image.fromstring(player.tobytes(), player.size, 'RGBA'), (5, SCREEN_HEIGHT-(height-20)))
+        player = screen.blit(pg.image.fromstring(player.tobytes(), player.size, 'RGBA'), (5, SCREEN_HEIGHT-(height-10)))
         
         obstacles.update_items(screen)
         
         if height > ((SCREEN_HEIGHT // 2) + 50):
             self.start=True
         if self.start:
-            if not lock:
-                self.bg = (bg[0]-speed, bg[1])
-                if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH):
-                    lock = True
-            if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and lock:
+            if not self.lock:
+                bg = (bg[0]-speed, bg[1])
+                if -(bg[0]) >= (ground_b.size[0] - SCREEN_WIDTH):
+                    self.lock = True
+            if -(bg[0]) >= (ground_b.size[0] - SCREEN_WIDTH) and self.lock:
                 bg1 = (bg1[0]-speed, bg1[1])
                 bg = (bg[0]-speed, bg[1])
-                if -(bg1[0]) >= (ground_w.size[0] - SCREEN_WIDTH):
+                if -(bg1[0]) >= (ground_b.size[0] - SCREEN_WIDTH):
                     bg = (SCREEN_WIDTH, SCREEN_HEIGHT//2 + 15)
 
-            if -(bg1[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and lock:
+            if -(bg1[0]) >= (ground_b.size[0] - SCREEN_WIDTH) and self.lock:
                 bg = (bg[0]-speed, bg1[1])
                 bg1 = (bg1[0]-speed, bg1[1])
-                if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH):
+                if -(bg[0]) >= (ground_b.size[0] - SCREEN_WIDTH):
                     bg1 = (SCREEN_WIDTH, SCREEN_HEIGHT//2 + 15)
 
             self.player_sprite = player_w
