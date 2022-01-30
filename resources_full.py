@@ -1,5 +1,9 @@
 from PIL import  Image
 
+# extracting title form the title.png image.
+title_img = Image.open("resources.png").crop((416,0,1610,260)).convert("RGBA")
+title_img = title_img.resize(list(map(lambda x:x//2 , title_img.size)))
+
 # extracting game items and characters form the resource.png image.
 player_w = Image.open("resources.png").crop((4,24,92,109)).convert("RGBA") # right facing upright alive duck - OLD VAR NAME
 player_w = player_w.resize(list(map(lambda x:x//2 , player_w.size)))
