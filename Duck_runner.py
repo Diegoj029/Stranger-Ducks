@@ -3,27 +3,86 @@ from itertools import cycle
 from random import choice
 import pygame as pg
 import time
-from resources import *
+from resources_full import *
 from tools import *
 from Qtools import *
 
 pg.init()
 
-SCREEN_WIDTH = 600
+qc = QuantumCircuit(1)
+SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 speed = 4
-status = 2    #0 = Alive | 1 = Death | 2 = Superposition
+status = 0    #0 = Alive | 1 = Death | 2 = Superposition
 height = (SCREEN_HEIGHT // 2)
 if status == 2: 
-    FPS = 100
+    FPS = 90
 else: 
-    FPS = 180
+    FPS = 160
 
 """
 ///////////////////////////////////////////////////////////
    QUANTUM ENGINE
 ///////////////////////////////////////////////////////////
 """
+
+class ItemManager():
+    def __init__(self):
+        global status
+
+        self.items = [(notgatebit_w, notgatebit_b), (ygatebit_w, ygatebit_b), (zgatebit_w, zgatebit_b), (hgatebit_w, hgatebit_b), (swapgatebit_w, swapgatebit_b), (qubit_w_s, qubit_w_l)]
+        self.obs_height = (SCREEN_HEIGHT//2 - 80, SCREEN_HEIGHT//2 + 55)
+
+        if status == 2:
+            item_ast = choice(self.items)
+            self.side = rnd(0,2)
+            self.item1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[self.side])
+            self.item_ast1 = item_ast[self.side]
+        else:
+            self.item1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[status])
+            self.item_ast1 = choice(self.items)[status]
+
+
+    def update_items(self, screen, player_sprite):
+        global height
+        global status
+
+        if status == 2:
+            screen.blit(pg.image.fromstring(self.item_ast1.tobytes(), self.item_ast1.size, 'RGBA'), self.item1)
+
+            if self.item1[0]<=-50:
+                item_ast = choice(self.items)
+                self.side = rnd(0,2)
+                self.item1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[self.side])
+                self.item_ast1 = item_ast[self.side]
+        else:
+            screen.blit(pg.image.fromstring(self.item_ast1.tobytes(), self.item_ast1.size, 'RGBA'), self.item1)  
+            if self.item1[0]<=-50:
+                self.item1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[status])
+                self.item_ast1 = choice(self.items)[status]
+    
+
+        self.player_stading_cub = (5, player_sprite.size[0], 5 - player_sprite.size[0], 80 - player_sprite.size[1])
+
+    def display_item(self):
+        global status
+        
+        if status == 2:
+            self.item1 = (self.item1[0]-speed, self.item1[1])
+
+            self.item1_cub = (self.item1[0], self.item1[1], self.item1[0] + self.item_ast1.size[0], self.item1[1] + self.item_ast1.size[1])
+
+            if self.item1_cub[0]<=self.player_stading_cub[2]-10<=self.item1_cub[2] and self.item1_cub[1]<=self.player_stading_cub[3]-10<=self.item1_cub[3]-5:
+                return False
+        else:
+            self.item1 = (self.item1[0]-speed, self.item1[1])
+        
+            self.item1_cub = (self.item1[0], self.item1[1], self.item1[0] + self.item_ast1.size[0], self.item1[1] + self.item_ast1.size[1])
+       
+            if self.item1_cub[0]<=self.player_stading_cub[2]-10<=self.item1_cub[2] and self.item1_cub[1]<=self.player_stading_cub[3]-10<=self.item1_cub[3]-5:
+                return False
+
+        return True
 
 class GateManager():
     def __init__(self):
@@ -56,8 +115,8 @@ class ObstacleManager():
         self.obstacles = [(noise_w_s, noise_b_s), (noise_w_l, noise_b_l)]
         self.obs_height = ((SCREEN_HEIGHT // 2) - 40 , (SCREEN_HEIGHT // 2) + 15)
         if status == 2:
-            self.obs1 = (rnd(600, 600+500), self.obs_height[0]-10)
-            self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[0]-10)
+            self.obs1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[0]-10)
+            self.obs2 = (rnd(SCREEN_WIDTH*2, SCREEN_WIDTH*2+500), self.obs_height[0]-10)
             self.obast1 = choice(self.obstacles)
             self.obast2 = choice(self.obstacles)
 
@@ -70,18 +129,19 @@ class ObstacleManager():
 
         else:
             if status == 0:
-                self.obs1 = (rnd(600, 600+500), self.obs_height[0])
-                self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[0])
+                self.obs1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[0])
+                self.obs2 = (rnd(SCREEN_WIDTH*2, SCREEN_WIDTH*2+500), self.obs_height[0])
                 self.obast1 = choice(self.obstacles)[0]
                 self.obast2 = choice(self.obstacles)[0]
             else:
-                self.obs1 = (rnd(600, 600+500), self.obs_height[1])
-                self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[1])
+                self.obs1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[1])
+                self.obs2 = (rnd(SCREEN_WIDTH*2, SCREEN_WIDTH*2+500), self.obs_height[1])
                 self.obast1 = choice(self.obstacles)[1]
                 self.obast2 = choice(self.obstacles)[1]
 
-    def update_items(self, screen):
+    def update_items(self, screen, player_sprite):
         global height
+        global status
         if status == 2:
             screen.blit(pg.image.fromstring(self.obast1.tobytes(), self.obast1.size, 'RGBA'), self.obs1)
             screen.blit(pg.image.fromstring(self.obast2.tobytes(), self.obast2.size, 'RGBA'), self.obs2)
@@ -89,12 +149,12 @@ class ObstacleManager():
             screen.blit(pg.image.fromstring(self.obast4.tobytes(), self.obast4.size, 'RGBA'), self.obs4)
 
             if self.obs1[0]<=-50:
-                self.obs1 = (rnd(600, 600+500), self.obs_height[0])
+                self.obs1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[0])
                 self.obast1_choice = choice(self.obstacles)
                 self.obast1 = self.obast1_choice[0]
                 
             if self.obs2[0]<=-50:
-                self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[0])
+                self.obs2 = (rnd(SCREEN_WIDTH*2, SCREEN_WIDTH*2+500), self.obs_height[0])
                 self.obast2_choice = choice(self.obstacles)
                 self.obast2 = self.obast2_choice[0]
             
@@ -105,44 +165,47 @@ class ObstacleManager():
             if self.obs4[0]<=-50:
                 self.obs4 = (self.obs2[0], self.obs_height[1])
                 self.obast4 = self.obast2_choice[1]
-            self.player_stading_cub = (5, height, 5+43, height+46)
-
+            self.player_stading_cub = (5, player_sprite.size[0], 5 + player_sprite.size[0], player_sprite.size[0] + player_sprite.size[1])
         else:
             screen.blit(pg.image.fromstring(self.obast1.tobytes(), self.obast1.size, 'RGBA'), self.obs1)
             screen.blit(pg.image.fromstring(self.obast2.tobytes(), self.obast2.size, 'RGBA'), self.obs2)
 
             if status == 0:
                 if self.obs1[0]<=-50:
-                    self.obs1 = (rnd(600, 600+500), self.obs_height[0])
+                    self.obs1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[0])
                     self.obast1 = choice(self.obstacles)[status]
 
                 if self.obs2[0]<=-50:
-                    self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[0])
+                    self.obs2 = (rnd(SCREEN_WIDTH*2, SCREEN_WIDTH*2+500), self.obs_height[0])
                     self.obast2 = choice(self.obstacles)[0]
-                self.player_stading_cub = (5, height, 5+43, height+46)
+                self.player_stading_cub = (5, player_sprite.size[0], 5 + player_sprite.size[0], player_sprite.size[0] + player_sprite.size[1])
             else:
                 if self.obs1[0]<=-50:
-                    self.obs1 = (rnd(600, 600+500), self.obs_height[1])
+                    self.obs1 = (rnd(SCREEN_WIDTH, SCREEN_WIDTH+500), self.obs_height[1])
                     self.obast1 = choice(self.obstacles)[1]
 
                 if self.obs2[0]<=-50:
-                    self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height[1])
+                    self.obs2 = (rnd(SCREEN_WIDTH*2, SCREEN_WIDTH*2+500), self.obs_height[1])
                     self.obast2 = choice(self.obstacles)[1]
-                self.player_stading_cub = (5, height, 5-43, height-46)
+                self.player_stading_cub = (5, SCREEN_HEIGHT-(height-10), 5 + player_sprite.size[0], SCREEN_HEIGHT-(height-10) - player_sprite.size[1])
 
-    def display_obstacle(self):
+    def display_obstacle(self, screen):
+        global status
         if status == 2:
             self.obs1 = (self.obs1[0]-speed, self.obs1[1])
             self.obs2 = (self.obs2[0]-speed, self.obs2[1])
             self.obs3 = (self.obs3[0]-speed, self.obs3[1])
             self.obs4 = (self.obs4[0]-speed, self.obs4[1])
             
-            self.obs1_cub = (self.obs1[0], self.obs1[1], self.obs1[0] + self.obast1.size[0], self.obs1[1] + self.obast1.size[1] - 20)
-            self.obs2_cub = (self.obs2[0], self.obs2[1], self.obs2[0] + self.obast2.size[0], self.obs2[1] + self.obast2.size[1] - 20)
-            self.obs3_cub = (self.obs3[0], self.obs3[1], self.obs3[0] - self.obast3.size[0], self.obs3[1] - self.obast3.size[1] + 20)
-            self.obs4_cub = (self.obs4[0], self.obs4[1], self.obs4[0] - self.obast4.size[0], self.obs4[1] - self.obast4.size[1] + 20)
+            self.obs1_cub = (self.obs1[0], self.obs1[1], self.obs1[0] + self.obast1.size[0], self.obs1[1] + self.obast1.size[1])
+            print(self.obs1_cub)
+            screen.fill(RED, self.obs1_cub)
+            screen.update()
+            self.obs2_cub = (self.obs2[0], self.obs2[1], self.obs2[0] + self.obast2.size[0], self.obs2[1] + self.obast2.size[1])
+            self.obs3_cub = (self.obs3[0], self.obs3[1], self.obs3[0] - self.obast3.size[0], self.obs3[1] - self.obast3.size[1])
+            self.obs4_cub = (self.obs4[0], self.obs4[1], self.obs4[0] - self.obast4.size[0], self.obs4[1] - self.obast4.size[1])
             
-            if self.obs1_cub[0]<=self.player_stading_cub[2]-10<=self.obs1_cub[2] and self.obs1_cub[1]<=self.player_stading_cub[3]-10<=self.obs1_cub[3]-5:
+            if self.obs1_cub[0]<=self.player_stading_cub[0]-10<=self.obs1_cub[2] and self.obs1_cub[1]<=self.player_stading_cub[1]-10<=self.obs1_cub[3]-5:
                 return False
             if self.obs2_cub[0]<=self.player_stading_cub[2]-10<=self.obs2_cub[2] and self.obs2_cub[1]<=self.player_stading_cub[3]-10<=self.obs2_cub[3]-5:
                 return False
@@ -202,7 +265,7 @@ class Game(object):
                     if height >= (SCREEN_HEIGHT // 2)-20:self.jumping = True
                 return False
 
-    def display_alive_state(self, screen, obstacles):
+    def display_alive_state(self, screen, obstacles, items):
         global height
         bg = (0, SCREEN_HEIGHT//2 - 15)
         bg1 = (ground_w.size[0], SCREEN_HEIGHT//2 - 15)
@@ -223,9 +286,10 @@ class Game(object):
             height += 3
         player = screen.blit(pg.image.fromstring(player.tobytes(), player.size, 'RGBA'), (5, height-50))
         
-        obstacles.update_items(screen)
+        obstacles.update_items(screen, player_sprite)
+        items.update_items(screen, player_sprite)
         
-        if height > ((SCREEN_HEIGHT // 2)-50):
+        if height > ((SCREEN_HEIGHT // 2)):
             self.start=True
         if self.start:
             if not self.lock:
@@ -245,14 +309,16 @@ class Game(object):
                     bg1 = (SCREEN_WIDTH, SCREEN_HEIGHT//2 - 15)
 
             player_sprite = player_w
-            self.start = obstacles.display_obstacle()
+            self.start = obstacles.display_obstacle(screen)
+            if not items.display_item():
+                print("item recolectado")
         else:
             player_sprite = player_b
 
-    def display_death_state(self, screen, obstacles):
+    def display_death_state(self, screen, obstacles, items):
         global height
-        bg = (0, SCREEN_HEIGHT//2 - 15)
-        bg1 = (ground_w.size[0], SCREEN_HEIGHT//2 - 15)
+        bg = (0, SCREEN_HEIGHT//2 + 5)
+        bg1 = (ground_w.size[0], SCREEN_HEIGHT//2 + 5)
         player_sprite = player_b
         player = player_sprite if type(player_sprite) != cycle else next(player_sprite)
         
@@ -270,9 +336,10 @@ class Game(object):
             height += 3
         player = screen.blit(pg.image.fromstring(player.tobytes(), player.size, 'RGBA'), (5, SCREEN_HEIGHT-(height-10)))
         
-        obstacles.update_items(screen)
+        obstacles.update_items(screen, player_sprite)
+        items.update_items(screen, player_sprite)
         
-        if height > ((SCREEN_HEIGHT // 2)-50):
+        if height > ((SCREEN_HEIGHT // 2)):
             self.start=True
         if self.start:
             if not self.lock:
@@ -293,6 +360,7 @@ class Game(object):
 
             player_sprite = player_w
             self.start = obstacles.display_obstacle()
+            self.start = items.display_item()
         else:
             player_sprite = player_b
 
@@ -367,19 +435,19 @@ class Menu():
         done = False
         game = Game()
         obstacles = ObstacleManager()
-        #items = ItemManager()
+        items = ItemManager()
 
         while not done:
             done = game.process_events()
             self.screen.fill(WHITE, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT//2))
             self.screen.fill(BLACK, (0, SCREEN_HEIGHT//2, SCREEN_WIDTH, SCREEN_HEIGHT//2))
             if status == 0:
-                game.display_alive_state(self.screen, obstacles)
+                game.display_alive_state(self.screen, obstacles, items)
             elif status == 1:
-                game.display_death_state(self.screen, obstacles)
+                game.display_death_state(self.screen, obstacles, items)
             elif status == 2:
-                game.display_alive_state(self.screen, obstacles)
-                game.display_death_state(self.screen, obstacles)
+                game.display_alive_state(self.screen, obstacles, items)
+                game.display_death_state(self.screen, obstacles, items)
             pg.display.flip()
             clock.tick(FPS)
 
