@@ -163,6 +163,12 @@ hgate_w = hgate_w.resize(list(map(lambda x:x//2 , hgate_w.size)))
 hgate_b = Image.open("gates.png").crop((4310,141,4783,238)).convert("RGBA") # H gate - black world
 hgate_b = hgate_b.resize(list(map(lambda x:x//2 , hgate_b.size)))
 
+measure_w = Image.open("gates.png").crop((5746,6,5806,47)).convert("RGBA") # MEASURE gate - white world
+measure_w = measure_w.resize(list(map(lambda x:x//2 , measure_w.size)))
+
+measure_b = Image.open("gates.png").crop((4746,57,5806,98)).convert("RGBA") # MEASURE gate - black world
+measure_b = measure_b.resize(list(map(lambda x:x//2 , measure_b.size)))
+
 # extracting button assets form the gates.png image.
 start_btn = Image.open("gates.png").crop((4890,25,5095,215)).convert("RGBA") # start game button
 start_btn = start_btn.resize(list(map(lambda x:x//2 , start_btn.size)))
