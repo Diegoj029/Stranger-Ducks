@@ -42,3 +42,52 @@ qubit_w_l = qubit_w_l.resize(list(map(lambda x:x//2 , qubit_w_l.size)))
 
 qubit_b_l = Image.open("resources.png").crop((363,28,451,99)).convert("RGBA")
 qubit_b_l = qubit_b_l.resize(list(map(lambda x:x//2 , qubit_b_l.size)))
+
+# extracting gate screen assets form the gates.png image.
+state_w = Image.open("gates.png").crop((8,143,141,237)).convert("RGBA") # pictogram of current state - white world
+state_w = state_w.resize(list(map(lambda x:x//2 , state_w.size)))
+
+state_b = Image.open("gates.png").crop((162,142,296,238)).convert("RGBA") # pictogram of current state - black world
+state_b = state_b.resize(list(map(lambda x:x//2 , state_b.size)))
+
+xgate_w = Image.open("gates.png").crop((325,7,799,107)).convert("RGBA") # X gate - white world
+xgate_w = xgate_w.resize(list(map(lambda x:x//2 , xgate_w.size)))
+
+xgate_b = Image.open("gates.png").crop((326,137,798,234)).convert("RGBA") # X gate - black world
+xgate_b = xgate_b.resize(list(map(lambda x:x//2 , xgate_b.size)))
+
+ygate_w = Image.open("gates.png").crop((822,8,1296,104)).convert("RGBA") # Y gate - white world
+ygate_w = ygate_w.resize(list(map(lambda x:x//2 , ygate_w.size)))
+
+ygate_b = Image.open("gates.png").crop((822,138,1295,236)).convert("RGBA") # Y gate - black world
+ygate_b = ygate_b.resize(list(map(lambda x:x//2 , ygate_b.size)))
+
+zgate_w = Image.open("gates.png").crop((1313,7,1786,104)).convert("RGBA") # Z gate - white world
+zgate_w = zgate_w.resize(list(map(lambda x:x//2 , zgate_w.size)))
+
+zgate_b = Image.open("gates.png").crop((1312,137,1787,233)).convert("RGBA") # Z gate - black world
+zgate_b = zgate_b.resize(list(map(lambda x:x//2 , zgate_b.size)))
+
+not_w = Image.open("gates.png").crop((1815,7,2289,106)).convert("RGBA") # NOT gate - white world
+not_w = not_w.resize(list(map(lambda x:x//2 , not_w.size)))
+
+not_b = Image.open("gates.png").crop((1817,137,2289,235)).convert("RGBA") # NOT gate - black world
+not_b = not_b.resize(list(map(lambda x:x//2 , not_b.size)))
+
+cnot_w = Image.open("gates.png").crop((2343,11,2822,243)).convert("RGBA") # CNOT gate - white world
+cnot_w = cnot_w.resize(list(map(lambda x:x//2 , cnot_w.size)))
+
+swap_w = Image.open("gates.png").crop((2835,10,3315,243)).convert("RGBA") # SWAP gate - white world
+swap_w = swap_w.resize(list(map(lambda x:x//2 , swap_w.size)))
+
+cnot_b = Image.open("gates.png").crop((3322,10,3804,245)).convert("RGBA") # CNOT gate - black world
+cnot_b = cnot_b.resize(list(map(lambda x:x//2 , cnot_b.size)))
+
+swap_b = Image.open("gates.png").crop((3814,9,4301,245)).convert("RGBA") # SWAP gate - black world
+swap_b = swap_b.resize(list(map(lambda x:x//2 , swap_b.size)))
+
+hgate_w = Image.open("gates.png").crop((4309,10,4784,108)).convert("RGBA") # H gate - white world
+hgate_w = hgate_w.resize(list(map(lambda x:x//2 , hgate_w.size)))
+
+hgate_b = Image.open("gates.png").crop((4310,141,4783,238)).convert("RGBA") # H gate - black world
+hgate_b = hgate_b.resize(list(map(lambda x:x//2 , hgate_b.size)))
