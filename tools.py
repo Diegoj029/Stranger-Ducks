@@ -1,14 +1,11 @@
 import pygame as pg
 import pandas as pd
-import os
-from resources import leaderboard_txt
-from game import SCORE
+#from resources import leaderboard_txt
+#from game import SCORE
 
 #Basic colors
-BLACK   = (     0,  0,    0)
-WHITE   = (   255,255,  255)
-RED     = (   255,  0,    0)
-BLUE    = (     0,  0,  255)
+BLACK   = (    83,  83,   83)
+WHITE   = (   246, 246,  246)
 
 #Text render method
 def message_to_screen(screen,msg,color,position,size):
@@ -16,13 +13,14 @@ def message_to_screen(screen,msg,color,position,size):
     text = font.render(msg,True,color)
     screen.blit(text,position)
 
-def record_score(player_name):
-    pd_leaderboard = pd.read_csv(leaderboard_txt)
-    new_score = (player_name,SCORE)
-    pd_leaderboard.append(new_score)
-    pd_leaderboard = pd_leaderboard.sort_values('score')
-    pd_leaderboard.to_csv(leaderboard_txt)
+# def record_score(player_name):
+#     pd_leaderboard = pd.read_csv(leaderboard_txt)
+#     new_score = (player_name,SCORE)
+#     pd_leaderboard.append(new_score)
+#     pd_leaderboard = pd_leaderboard.sort_values('score')
+#     pd_leaderboard.to_csv(leaderboard_txt)
 
+"""
 class InputBox:
 
     def __init__(self, x, y, w, h, text=''):
@@ -67,7 +65,7 @@ class InputBox:
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         # Blit the rect.
         pg.draw.rect(screen, self.color, self.rect, 2)
-
+"""
 class Button():
     def __init__(self, image, effects, position, size, callback):
         self.image = image

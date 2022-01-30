@@ -1,37 +1,96 @@
 from random import randrange as rnd
 from itertools import cycle
 from random import choice
+from tracemalloc import start
 import pygame as pg
 import time
 from resources import *
-#from tools import *
+from tools import *
+from Qtools import *
 
 pg.init()
 
-SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 600
-FPS = 60
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 300
+FPS = 120
 speed = 4
+status = 0     #0 = Alive | 1 = Death
+height = 110
 
 """
 ///////////////////////////////////////////////////////////
    QUANTUM ENGINE
 ///////////////////////////////////////////////////////////
 """
-class Obstacle():
-    def __init__(self):
-        self.obstacles = [obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6]
-        self.obs1 = (rnd(600, 600+500), 130)
-        self.obs2 = (rnd(600+100+500, 1200+500), 130)
-        self.obs3 = (rnd(1700, 2000), 130)
 
-    def get_asset(self):
-        obast1 = choice(self.obstacles)
-        if obast1 in [obstacle4, obstacle5, obstacle6]:obs1 = (self.obs1[0], 115)
-        obast2 = choice(self.obstacles)
-        if obast2 in [obstacle4, obstacle5, obstacle6]:obs2 = (self.obs2[0], 115)
-        obast3 = choice(self.obstacles)
-        if obast3 in [obstacle4, obstacle5, obstacle6]:obs3 = (self.obs3[0], 115)
+class GateManager():
+    def __init__(self):
+        self.gates = []
+        self.qc = QuantumCircuit(1)
+
+    def push_gates(self,gate):
+        self.gates.append(gate)
+        add_gate(self.qc,gate,0)
+    
+    def get_gates(self):
+        return self.gates
+
+    def get_qc(self):
+        return self.qc.draw()
+
+    def measure(self):
+        self.qc.measure_all()
+        sim = Aer.get_backend('aer_simulator')
+        x = measuring(self.qc,sim,1)
+        k = list(x.keys())
+        self.gates.clear()
+        self.qc = QuantumCircuit(1)
+        if k[0]=='1':
+            self.qc.x(0)
+        return k[0]
+
+class ObstacleManager():
+    def __init__(self):
+        self.obstacles = [noise_w_s, noise_w_l]
+        self.obs_height = 140
+        self.obs1 = (rnd(600, 600+500), self.obs_height)
+        self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height)
+        self.obast1 = choice(self.obstacles)
+        self.obast2 = choice(self.obstacles)
+        if self.obast1 in [noise_w_s, noise_w_l]:self.obs1 = (self.obs1[0], 115)
+        if self.obast2 in [noise_w_s, noise_w_l]:self.obs2 = (self.obs2[0], 115)
+
+    def update_items(self, screen):
+        global height
+        screen.blit(pg.image.fromstring(self.obast1.tobytes(), self.obast1.size, 'RGBA'), self.obs1)
+        screen.blit(pg.image.fromstring(self.obast2.tobytes(), self.obast2.size, 'RGBA'), self.obs2)
+        
+        if self.obs1[0]<=-50:
+            self.obs1 = (rnd(600, 600+500), self.obs_height)
+            self.obast1 = choice(self.obstacles)
+            if self.obast1 in [noise_w_s, noise_w_l]:self.obs1 = (self.obs1[0], 115)
+        if self.obs2[0]<=-50:
+            self.obs2 = (rnd(600+100+500, 1200+500), self.obs_height)
+            self.obast2 = choice(self.obstacles)
+            if self.obast2 in [noise_w_s, noise_w_l]:self.obs2 = (self.obs2[0], 115)
+
+        self.player_stading_cub = (5, height, 5+43, height+46)
+
+    def display_obstacle(self):
+        self.obs1 = (self.obs1[0]-speed, self.obs1[1])
+        self.obs2 = (self.obs2[0]-speed, self.obs2[1])
+        
+        self.obs1_cub = (self.obs1[0], self.obs1[1], self.obs1[0] + self.obast1.size[0], self.obs1[1] + self.obast1.size[1])
+        self.obs2_cub = (self.obs2[0], self.obs2[1], self.obs2[0] + self.obast2.size[0], self.obs2[1] + self.obast2.size[1])
+        
+        if self.obs1_cub[0]<=self.player_stading_cub[2]-10<=self.obs1_cub[2] and self.obs1_cub[1]<=self.player_stading_cub[3]-10<=self.obs1_cub[3]-5:
+            return False
+        if self.obs2_cub[0]<=self.player_stading_cub[2]-10<=self.obs2_cub[2] and self.obs2_cub[1]<=self.player_stading_cub[3]-10<=self.obs2_cub[3]-5:
+            return False
+
+        return True
+
+
 
 """
 ///////////////////////////////////////////////////////////
@@ -40,22 +99,11 @@ class Obstacle():
 """
 class Game(object):
     def __init__(self):
-        speed_identifier = lambda x: 2 if x >= 30 else 8 if x < 8 else 5
-        cust_speed = speed_identifier(speed)
-        self.running = cycle([player_frame_3]*cust_speed+[player_frame_31]*cust_speed)
-        self.crouch = cycle([player_frame_5]*cust_speed+ [player_frame_6]*cust_speed)
-        self.crouch_scope = [player_frame_5]+[player_frame_6]
-
-        gameDisplay = pg.display.set_mode((600,200))
-        pg.display.set_caption('Stranger Ducks')
-        clock = pg.time.Clock()
-        state = player_frame_1
-        crashed = False
-        lock = False
-        bg = (0, 150)
-        bg1 = (600,150)
+        self.player_sprite = player_w
+        self.lock = False
+        self.bg = (0, 150)
+        self.bg1 = (600, 150)
         self.start = False
-        self.height = 110
         self.jumping = False
 
     def process_events(self):
@@ -68,19 +116,62 @@ class Game(object):
             if event.type==pg.KEYDOWN:
                 self.start = True
                 if event.key == pg.K_SPACE:
-                    if self.height >= 110: self.jumping = True        
+                    if height >= 110: self.jumping = True
+                return False
+
+    def display_frame(self, screen, obstacles):
+        print(self.start)
+        global height
+        player = self.player_sprite if type(self.player_sprite) != cycle else next(self.player_sprite)
+        
+        #Floor
+        screen.blit(pg.image.fromstring(ground_w.tobytes(), ground_w.size, 'RGBA'), self.bg)
+        screen.blit(pg.image.fromstring(ground_w.tobytes(), ground_w.size, 'RGBA'), self.bg1)
+        
+        #Jump
+        if self.jumping:
+            if height >= 110-100:
+                height -= 3
+            if height <= 110-100:
+                self.jumping = False
+        if height < 110 and not self.jumping:
+            height += 3
+        player = screen.blit(pg.image.fromstring(player.tobytes(), player.size, 'RGBA'), (5,height))
+        
+        obstacles.update_items(screen)
+        
+        if height > 110:
+            self.start=True
+        if self.start:
+            # if not self.lock:
+            #     self.bg = (self.bg[0]-speed, self.bg[1])
+            #     if self.bg[0]<=-(600):
+            #         lock = 1
+            # if -self.bg[0]>=600 and self.lock:
+            #     self.bg1 = (self.bg1[0]-speed, self.bg1[1])
+            #     self.bg = (self.bg[0]-speed, self.bg[1])
+            #     if -self.bg1[0]>=600:self.bg = (600,150)
+            # if -self.bg1[0]>=600 and self.lock:
+            #     self.bg = (self.bg[0]-speed, self.bg1[1])
+            #     self.bg1 = (self.bg1[0]-speed, self.bg1[1])
+            #     if -self.bg[0]>=600:self.bg1 = (600,150)
+            self.player_sprite = player_w
+            self.start = obstacles.display_obstacle()
+        else:
+            self.player_sprite = player_b
 
 class Menu():
     def __init__(self, screen):
         self.screen = screen
-        self.back_btn = Button(back,back_glow,(0,0),(50,50),"Back")
-        self.input_box1 = InputBox(100, 100, 140, 32)
-        self.input_boxes = []
+        # self.back_btn = Button(back,back_glow,(0,0),(50,50),"Back")
+        # self.input_box1 = InputBox(100, 100, 140, 32)
+        # self.input_boxes = []
 
-        self.input_boxes.append(self.input_box1)
+        # self.input_boxes.append(self.input_box1)
+        pg.display.set_caption('Stranger Ducks')
 
         #Launch app
-        self.main_menu()
+        self.game_runtime()
 
 
     def process_events(self,button_list):
@@ -125,8 +216,8 @@ class Menu():
             done = self.process_events(button_list)
             
             #Display elements
-            self.screen.fill(BLUE)
-            self.screen.blit(main_menu_bg,(0,0))
+            self.screen.fill(WHITE)
+            #self.screen.blit(main_menu_bg,(0,0))
             for button in button_list:
                 button.draw(self.screen)
 
@@ -134,76 +225,18 @@ class Menu():
     
 
     def game_runtime(self):
-        while not crashed:
-        gameDisplay.fill((246,246,246))
-        player = state if type(state) != cycle else next(state)
-        #Background
-        gameDisplay.blit(pg.image.fromstring(ground.tobytes(), ground.size, 'RGBA'), bg)
-        gameDisplay.blit(pg.image.fromstring(ground.tobytes(), ground.size, 'RGBA'), bg1)
-        
-        #Jump
-        if jumping:
-            if height>=110-100:
-                height -= 4
-            if height <= 110-100:
-                jumping = False
-        if height<110 and not jumping:
-            if slow_motion == True:
-                height += 1.5
-            else:height += 3
-        player = gameDisplay.blit(pg.image.fromstring(player.tobytes(), player.size, 'RGBA'), (5,height))
-        gameDisplay.blit(pg.image.fromstring(obast1.tobytes(), obast1.size, 'RGBA'), obs1)
-        gameDisplay.blit(pg.image.fromstring(obast2.tobytes(), obast2.size, 'RGBA'), obs2)
-        gameDisplay.blit(pg.image.fromstring(obast3.tobytes(), obast3.size, 'RGBA'), obs3)
-        if obs1[0]<=-50:
-            obs1 = (rnd(600, 600+500), 130)
-            obast1 = choice(obstacles)
-            if obast1 in [obstacle4, obstacle5, obstacle6]:obs1 = (obs1[0], 115)
-        if obs2[0]<=-50:
-            obs2 = (rnd(600+100+500, 1200+500), 130)
-            obast2 = choice(obstacles)
-            if obast2 in [obstacle4, obstacle5, obstacle6]:obs2 = (obs2[0], 115)
-        if obs3[0]<=-50:
-            obs3 = (rnd(1700, 2000), 130) 
-            obast3 = choice(obstacles) 
-            if obast3 in [obstacle4, obstacle5, obstacle6]:obs3 = (obs3[0], 115)
-        player_stading_cub = (5, height, 5+43, height+46)
-        if height< 100:
-            start=True
-        if start:
-            obs1 = (obs1[0]-speed, obs1[1])
-            obs2 = (obs2[0]-speed, obs2[1])
-            obs3 = (obs3[0]-speed, obs3[1])
-            obs1_cub = (obs1[0], obs1[1], obs1[0]+obast1.size[0],obs1[1]+obast1.size[1])
-            obs2_cub = (obs2[0], obs2[1], obs2[0]+obast2.size[0],obs2[1]+obast2.size[1])
-            obs3_cub = (obs3[0], obs3[1], obs3[0]+obast3.size[0],obs3[1]+obast3.size[1])
-            if not lock:
-                bg = (bg[0]-speed, bg[1])
-                if bg[0]<=-(600):
-                    lock = 1
-            if -bg[0]>=600 and lock:
-                bg1 = (bg1[0]-speed, bg1[1])
-                bg = (bg[0]-speed, bg[1])
-                if -bg1[0]>=600:bg = (600,150)
-            if -bg1[0]>=600 and lock:
-                bg = (bg[0]-speed, bg1[1])
-                bg1 = (bg1[0]-speed, bg1[1])
-                if -bg[0]>=600:bg1 = (600,150)
+        clock = pg.time.Clock()
+        done = False
+        game = Game()
+        obstacles = ObstacleManager()
+        #items = ItemManager()
 
-            if obs1_cub[0]<=player_stading_cub[2]-10<=obs1_cub[2] and obs1_cub[1]<=player_stading_cub[3]-10<=obs1_cub[3]-5:
-                start=False
-                state = player_frame_4
-                crashed = True
-            if obs2_cub[0]<=player_stading_cub[2]-10<=obs2_cub[2] and obs2_cub[1]<=player_stading_cub[3]-10<=obs2_cub[3]-5:
-                start=False
-                state = player_frame_4
-                crashed = True
-            if obs3_cub[0]<=player_stading_cub[2]-10<=obs3_cub[2] and obs3_cub[1]<=player_stading_cub[3]-10<=obs3_cub[3]-5:
-                start=False
-                state = player_frame_4
-                crashed = True
-        pg.display.update()
-        clock.tick(120)
+        while not done:
+            done = game.process_events()
+            self.screen.fill(WHITE)
+            game.display_frame(self.screen, obstacles)
+            pg.display.flip()
+            clock.tick(FPS)
 
     def howtoplay(self):
         done = False
@@ -216,7 +249,7 @@ class Menu():
             done = self.process_events(button_list) #or back_btn_Pressed()
 
             #Display elements
-            self.screen.fill(BLUE)
+            self.screen.fill(BLACK)
             #self.screen.blit(credits_bg,(0,0))
             for button in button_list:
                 button.draw(self.screen)
@@ -234,7 +267,7 @@ class Menu():
             done = self.process_events(button_list) #or back_btn_Pressed()
 
             #Display elements
-            self.screen.fill(RED)
+            self.screen.fill(BLACK)
             #self.screen.blit(credits_bg,(0,0))
             for button in button_list:
                 button.draw(self.screen)
@@ -252,7 +285,7 @@ class Menu():
             done = self.process_events(button_list) #or back_btn_Pressed()
 
             #Display elements
-            self.screen.fill(RED)
+            self.screen.fill(BLACK)
             #self.screen.blit(credits_bg,(0,0))
             for button in button_list:
                 button.draw(self.screen)
@@ -282,8 +315,8 @@ class Menu():
                 box.draw(self.screen)
                 player_name = box.text
 
-            message_to_screen(self.screen,"GAME OVER",RED,(300,50),80)
-            message_to_screen(self.screen,"SCORE: " + str(SCORE),WHITE,(300,500),80)
+            message_to_screen(self.screen,"GAME OVER",BLACK,(300,50),80)
+            #message_to_screen(self.screen,"SCORE: " + str(SCORE),WHITE,(300,500),80)
 
             pg.display.flip()
 
@@ -304,25 +337,23 @@ class Menu():
             self.credits()
         elif callback == 'Back':
             self.main_menu()
-"""
+
 
 """
 ///////////////////////////////////////////////////////////
    RUN
 ///////////////////////////////////////////////////////////
 """
-"""
+
 def main():
     pg.init()
 
     screen = pg.display.set_mode([SCREEN_WIDTH,SCREEN_HEIGHT])
 
-    Game()
+    Menu(screen)
 
     pg.quit()
 
 
 if __name__ == "__main__":
 	main()
-
-"""
