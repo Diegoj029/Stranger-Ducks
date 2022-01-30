@@ -1,53 +1,44 @@
 from PIL import  Image
 
 # extracting game items and characters form the resource.png image.
-player_init = Image.open("resources.png").crop((77,5,163,96)).convert("RGBA")
-player_init = player_init.resize(list(map(lambda x:x//2 , player_init.size)))
+player_w = Image.open("resources.png").crop((4,24,92,109)).convert("RGBA")
+player_w = player_w.resize(list(map(lambda x:x//2 , player_w.size)))
 
-player_frame_1 = Image.open("resources.png").crop((1679,2,1765,95)).convert("RGBA")
-player_frame_1 = player_frame_1.resize(list(map(lambda x:x//2 , player_frame_1.size)))
+player_b = Image.open("resources.png").crop((108,21,196,106)).convert("RGBA")
+player_b = player_b.resize(list(map(lambda x:x//2 , player_b.size)))
 
-player_frame_2 = Image.open("resources.png").crop((1767,2,1853,95)).convert("RGBA")
-player_frame_2 = player_frame_2.resize(list(map(lambda x:x//2 , player_frame_2.size)))
+ground_w = Image.open("resources.png").crop((3,112,1395,130)).convert("RGBA")
+ground_w = ground_w.resize(list(map(lambda x:x//2 , ground_w.size)))
 
-player_frame_3 = Image.open("resources.png").crop((1855,2,1941,95)).convert("RGBA")
-player_frame_3 = player_frame_3.resize(list(map(lambda x:x//2 , player_frame_3.size)))
+ground_b = Image.open("resources.png").crop((3,0,1395,18)).convert("RGBA")
+ground_b = ground_b.resize(list(map(lambda x:x//2 , ground_b.size)))
 
-player_frame_31 = Image.open("resources.png").crop((1943,2,2029,95)).convert("RGBA")
-player_frame_31 = player_frame_31.resize(list(map(lambda x:x//2 , player_frame_31.size)))
+well_w = Image.open("resources.png").crop((1395,112,2446,130)).convert("RGBA")
+well_w = ground_w.resize(list(map(lambda x:x//2 , well_w.size)))
 
-player_frame_4 = Image.open("resources.png").crop((2030,2,2117,95)).convert("RGBA")
-player_frame_4 = player_frame_4.resize(list(map(lambda x:x//2 , player_frame_4.size)))
+well_b = Image.open("resources.png").crop((1395,0,2446,18)).convert("RGBA")
+well_b = ground_b.resize(list(map(lambda x:x//2 , well_b.size)))
 
-player_frame_5 = Image.open("resources.png").crop((2207,2,2323,95)).convert("RGBA")
-player_frame_5 = player_frame_5.resize(list(map(lambda x:x//2 , player_frame_5.size)))
+noise_w_s = Image.open("resources.png").crop((691,38,770,85)).convert("RGBA")
+noise_w_s = noise_w_s.resize(list(map(lambda x:x//2 , noise_w_s.size)))
 
-player_frame_6 = Image.open("resources.png").crop((2324,2,2441,95)).convert("RGBA")
-player_frame_6 = player_frame_6.resize(list(map(lambda x:x//2 , player_frame_6.size)))
+noise_b_s = Image.open("resources.png").crop((793,44,872,92)).convert("RGBA")
+noise_b_s = noise_b_s.resize(list(map(lambda x:x//2 , noise_b_s.size)))
 
-cloud = Image.open("resources.png").crop((166,2,257,29)).convert("RGBA")
-cloud = cloud.resize(list(map(lambda x:x//2 , cloud.size)))
+noise_w_l = Image.open("resources.png").crop((909,24,1034,99)).convert("RGBA")
+noise_w_l = noise_w_l.resize(list(map(lambda x:x//2 , noise_w_l.size)))
 
-ground = Image.open("resources.png").crop((2,102,2401,127)).convert("RGBA")
-ground = ground.resize(list(map(lambda x:x//2 , ground.size)))
+noise_b_l = Image.open("resources.png").crop((1069,34,1194,109)).convert("RGBA")
+noise_b_l = noise_b_l.resize(list(map(lambda x:x//2 , noise_b_l.size)))
 
-obstacle1 = Image.open("resources.png").crop((446,2,479,71)).convert("RGBA")
-obstacle1 = obstacle1.resize(list(map(lambda x:x//2 , obstacle1.size)))
+qubit_w_s = Image.open("resources.png").crop((500,40,561,89)).convert("RGBA")
+qubit_w_s = qubit_w_s.resize(list(map(lambda x:x//2 , qubit_w_s.size)))
 
-obstacle2 = Image.open("resources.png").crop((446,2,547,71)).convert("RGBA")
-obstacle2 = obstacle2.resize(list(map(lambda x:x//2 , obstacle2.size)))
+qubit_b_s = Image.open("resources.png").crop((578,42,639,90)).convert("RGBA")
+qubit_b_s = qubit_b_s.resize(list(map(lambda x:x//2 , qubit_b_s.size)))
 
-obstacle3 = Image.open("resources.png").crop((446,2,581,71)).convert("RGBA")
-obstacle3 = obstacle3.resize(list(map(lambda x:x//2 , obstacle3.size)))
+qubit_w_l = Image.open("resources.png").crop((250,26,338,97)).convert("RGBA")
+qubit_w_l = qubit_w_l.resize(list(map(lambda x:x//2 , qubit_w_l.size)))
 
-obstacle4 = Image.open("resources.png").crop((653,2,701,101)).convert("RGBA")
-obstacle4 = obstacle4.resize(list(map(lambda x:x//2 , obstacle4.size)))
-
-obstacle5 = Image.open("resources.png").crop((653,2,701,101)).convert("RGBA")
-obstacle5 = obstacle5.resize(list(map(lambda x:x//2 , obstacle5.size)))
-
-obstacle5 = Image.open("resources.png").crop((653,2,749,101)).convert("RGBA")
-obstacle5 = obstacle5.resize(list(map(lambda x:x//2 , obstacle5.size)))
-
-obstacle6 = Image.open("resources.png").crop((851,2,950,101)).convert("RGBA")
-obstacle6 = obstacle6.resize(list(map(lambda x:x//2 , obstacle6.size)))
+qubit_b_l = Image.open("resources.png").crop((363,28,451,99)).convert("RGBA")
+qubit_b_l = qubit_b_l.resize(list(map(lambda x:x//2 , qubit_b_l.size)))
