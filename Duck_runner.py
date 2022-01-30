@@ -1,8 +1,6 @@
 from random import randrange as rnd
 from itertools import cycle
 from random import choice
-from re import S
-from tracemalloc import start
 import pygame as pg
 import time
 from resources import *
@@ -14,10 +12,10 @@ pg.init()
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 speed = 4
-status = 1    #0 = Alive | 1 = Death | 2 = Superposition
+status = 2    #0 = Alive | 1 = Death | 2 = Superposition
 height = (SCREEN_HEIGHT // 2)
 if status == 2: 
-    FPS = 90
+    FPS = 100
 else: 
     FPS = 180
 
@@ -216,7 +214,6 @@ class Game(object):
         screen.blit(pg.image.fromstring(ground_w.tobytes(), ground_w.size, 'RGBA'), bg1)
         
         #Jump
-        print(self.jumping)
         if self.jumping:
             if height >= (SCREEN_HEIGHT // 2 -50)-100:
                 height -= 3
@@ -254,16 +251,16 @@ class Game(object):
 
     def display_death_state(self, screen, obstacles):
         global height
-        bg = (0, SCREEN_HEIGHT//2 + 5)
-        bg1 = (ground_b.size[0], SCREEN_HEIGHT//2 + 10)
-        player = player_b
+        bg = (0, SCREEN_HEIGHT//2 - 15)
+        bg1 = (ground_w.size[0], SCREEN_HEIGHT//2 - 15)
+        player_sprite = player_b
+        player = player_sprite if type(player_sprite) != cycle else next(player_sprite)
         
         #Floor
         screen.blit(pg.image.fromstring(ground_b.tobytes(), ground_b.size, 'RGBA'), bg)
         screen.blit(pg.image.fromstring(ground_b.tobytes(), ground_b.size, 'RGBA'), bg1)
         
         #Jump
-        print(self.jumping)
         if self.jumping:
             if height >= (SCREEN_HEIGHT // 2 -50)-100:
                 height -= 3
@@ -275,29 +272,29 @@ class Game(object):
         
         obstacles.update_items(screen)
         
-        if height > ((SCREEN_HEIGHT // 2) + 50):
+        if height > ((SCREEN_HEIGHT // 2)-50):
             self.start=True
         if self.start:
             if not self.lock:
                 bg = (bg[0]-speed, bg[1])
                 if -(bg[0]) >= (ground_b.size[0] - SCREEN_WIDTH):
                     self.lock = True
-            if -(bg[0]) >= (ground_b.size[0] - SCREEN_WIDTH) and self.lock:
+            if -(bg[0]) >= (ground_w.size[0] - SCREEN_WIDTH) and self.lock:
                 bg1 = (bg1[0]-speed, bg1[1])
                 bg = (bg[0]-speed, bg[1])
                 if -(bg1[0]) >= (ground_b.size[0] - SCREEN_WIDTH):
-                    bg = (SCREEN_WIDTH, SCREEN_HEIGHT//2 + 15)
+                    bg = (SCREEN_WIDTH, SCREEN_HEIGHT//2 - 15)
 
             if -(bg1[0]) >= (ground_b.size[0] - SCREEN_WIDTH) and self.lock:
                 bg = (bg[0]-speed, bg1[1])
                 bg1 = (bg1[0]-speed, bg1[1])
                 if -(bg[0]) >= (ground_b.size[0] - SCREEN_WIDTH):
-                    bg1 = (SCREEN_WIDTH, SCREEN_HEIGHT//2 + 15)
+                    bg1 = (SCREEN_WIDTH, SCREEN_HEIGHT//2 - 15)
 
-            self.player_sprite = player_w
+            player_sprite = player_w
             self.start = obstacles.display_obstacle()
         else:
-            self.player_sprite = player_b
+            player_sprite = player_b
 
 
 class Menu():
