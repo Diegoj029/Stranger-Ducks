@@ -413,7 +413,7 @@ class Menu():
         button_list = []
 
         strt = pg.image.fromstring(start_btn.tobytes(), start_btn.size, 'RGBA')
-        button_list.append(Button(strt,strt,(250,250),(205,190),"Start"))
+        button_list.append(Button(strt,strt,(550,250),(205,190),"Start"))
         # button_list.append(Button(leaderboard, leaderboard_glow, (0,200),(350,80),'Leaderboard'))
         # button_list.append(Button(howtoplay, howtoplay_glow, (0,280),(300,65),'How to Play'))
         # button_list.append(Button(options, options_glow, (0,350),(200,65),'Options'))
@@ -426,11 +426,11 @@ class Menu():
             self.screen.fill(WHITE)
             title = pg.image.fromstring(title_img.tobytes(), title_img.size, 'RGBA')
             self.screen.blit(title,(0,50))
-            message_to_screen(self.screen,"ENTER SUPERPOSITION",BLACK,(208,350),18)
-            message_to_screen(self.screen,"INSTRUCTIONS: Collect enough qubits to reach scalability,",BLACK,(10,430),18)
-            message_to_screen(self.screen,"in as little time as possible. Watch out for annihilators and noise!",BLACK,(10,457),18)
-            message_to_screen(self.screen,"Different gates have different effects on your state and the game.",BLACK,(10,484),18)
-            message_to_screen(self.screen,"Don't loose all your qubits; annihilation of the ground state will end the game.",BLACK,(10,511),18)
+            message_to_screen(self.screen,"ENTER SUPERPOSITION",BLACK,(508,350),18)
+            message_to_screen(self.screen,"INSTRUCTIONS: Collect enough qubits to reach scalability,",BLACK,(310,430),18)
+            message_to_screen(self.screen,"in as little time as possible. Watch out for annihilators and noise!",BLACK,(310,457),18)
+            message_to_screen(self.screen,"Different gates have different effects on your state and the game.",BLACK,(310,484),18)
+            message_to_screen(self.screen,"Don't loose all your qubits; annihilation of the ground state will end the game.",BLACK,(310,511),18)
             #self.screen.blit(main_menu_bg,(0,0))
             for button in button_list:
                 button.draw(self.screen)
